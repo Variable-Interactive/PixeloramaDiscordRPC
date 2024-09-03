@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6akw6iexaq5i"]
+
+[ext_resource type="Script" path="res://src/Extensions/DiscordRPC/Main.gd" id="1"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1")

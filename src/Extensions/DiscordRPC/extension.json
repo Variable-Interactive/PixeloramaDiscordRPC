@@ -1,0 +1,10 @@
+{
+"author": "Variable",
+"description": "What the Extension Does",
+"display_name": "DiscordRPC",
+"license": "MIT",
+"name": "DiscordRPC",
+"nodes": ["Main.tscn"],
+"supported_api_versions": [4],
+"version": "0.1"
+}
