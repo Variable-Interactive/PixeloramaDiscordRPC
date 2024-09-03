@@ -1,31 +1,19 @@
 extends Node
 
 var api: Node
-var item_id: int
 var Discord_RPC
+
 
 # This script acts as a setup for the extension
 func _enter_tree() -> void:
-	## NOTE: use get_node_or_null("/root/ExtensionsApi") to access api.
 	api = get_node_or_null("/root/ExtensionsApi")
-	var menu_type = api.menu.HELP
-
-	item_id = api.menu.add_menu_item(menu_type, "Show Message", self)
-	# the 3rd argument (in this case "self") will try to call "menu_item_clicked"
-	# (if it is present)
-
-
-func menu_item_clicked():
-	# Do some stuff
-	api.dialog.show_error("You Tickled Me :)")
+	if not $DependencyManager.is_integrated():
+		$DependencyManager.extract_deps()
+	if $DependencyManager.is_integrated():
+		start_discord_rpc()
 
 
-func _exit_tree() -> void:  # Extension is being uninstalled or disabled
-	# remember to remove things that you added using this extension
-	api.menu.remove_menu_item(api.menu.HELP, item_id)
-
-
-func _ready() -> void:
+func start_discord_rpc() -> void:
 	## Load the class
 	GDExtensionManager.load_extension("res://addons/discord-rpc-gd/bin/discord-rpc-gd.gdextension")
 	if ClassDB.class_exists("DiscordRPC"):
@@ -35,13 +23,28 @@ func _ready() -> void:
 		## Set Discord parameters
 		Discord_RPC.app_id = 1280532011810820156 # TODO Change with an official one -
 		print("Discord working: " + str(Discord_RPC.get_is_discord_working()))
-		Discord_RPC.details = tr("Just using Pixelorama")
+		if not Discord_RPC.get_is_discord_working():
+			api.dialog.show_error("Error setting up Discord. Either discord is not running or you may using a flathub version")
 		Discord_RPC.large_image = "pixelorama_large" # NOTE This is linked to the app_id (read the discord API Docs).
-		Discord_RPC.small_image = "pixelorama_small" # NOTE This is linked to the app_id (read the discord API Docs).
+		Discord_RPC.large_image_text = "" # NOTE This is linked to the app_id (read the discord API Docs).
+		Discord_RPC.small_image = "project" # NOTE This is linked to the app_id (read the discord API Docs).
 		Discord_RPC.start_timestamp = int(Time.get_unix_time_from_system())
+		Discord_RPC.refresh()
+		api.signals.signal_project_switched(project_changed)
+
+
+func _exit_tree() -> void:
+	api.dialog.show_error("Restart for the changes to take effect")
+
+
+func project_changed():
+	if Discord_RPC:
+		var project_name = api.project.current_project.name
+		Discord_RPC.details = tr("Editing Project: " + project_name)
+		Discord_RPC.small_image_text = project_name
 		Discord_RPC.refresh()
 
 
-func  _process(_delta) -> void:
+func  update_discord_rpc() -> void:
 	if Discord_RPC:
 		Discord_RPC.run_callbacks()
