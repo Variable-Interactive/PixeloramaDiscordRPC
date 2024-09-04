@@ -67,7 +67,6 @@ func _exit_tree() -> void:
 	api.signals.signal_current_cel_texture_changed(drawing_status, true)
 	api.general.get_global().animation_timeline.animation_started.disconnect(animation_started)
 	api.general.get_global().animation_timeline.animation_finished.disconnect(animation_finished)
-	api.dialog.show_error("Restart for the changes to take effect")
 
 
 func project_changed():
