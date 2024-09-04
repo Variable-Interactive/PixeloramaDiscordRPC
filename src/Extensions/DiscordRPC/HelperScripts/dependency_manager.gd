@@ -25,7 +25,7 @@ func is_integrated():
 
 func extract_deps():
 	var zip_reader := ZIPReader.new()
-	var err := zip_reader.open("res://addons/discord-rpc-gd/bin/bin.zip")
+	var err := zip_reader.open("res://addons/discord-rpc-gd/bin/libraries.zip")
 	if err == OK:
 		for path in libraries:
 			var content = zip_reader.read_file(path)
