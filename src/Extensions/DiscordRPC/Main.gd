@@ -3,8 +3,9 @@ extends Node
 var api: Node
 var Discord_RPC
 
-var status :StringName = ""
-var is_animating :bool = false
+var status := &""
+var is_animating := false
+
 
 # This script acts as a setup for the extension
 func _enter_tree() -> void:
@@ -16,14 +17,14 @@ func _enter_tree() -> void:
 
 
 func start_discord_rpc() -> void:
-	## Load the class
+	# Load the class
 	GDExtensionManager.load_extension("res://addons/discord-rpc-gd/bin/discord-rpc-gd.gdextension")
 	if ClassDB.class_exists("DiscordRPC"):
 		print("Initializing RPC")
 		Discord_RPC = ClassDB.instantiate("DiscordRPC")
 
-		## Set Discord parameters
-		Discord_RPC.app_id = 1280532011810820156 # TODO Change with an official one -
+		# Set Discord parameters
+		Discord_RPC.app_id = 696094110917984296
 		var discord_working: bool = Discord_RPC.get_is_discord_working()
 		print("Discord working: " + str(discord_working))
 		if not discord_working:
@@ -36,10 +37,13 @@ func start_discord_rpc() -> void:
 					"4. You are using Flathub version of Pixelorama\n"
 				)
 			)
-		Discord_RPC.large_image = "pixelorama_large"
+		Discord_RPC.large_image = "pixelorama"
 		Discord_RPC.large_image_text = api.general.get_pixelorama_version()
-		Discord_RPC.small_image = "project"
 		Discord_RPC.start_timestamp = int(Time.get_unix_time_from_system())
+		if is_instance_valid(api.project.current_project):
+			var project_name = api.project.current_project.name
+			Discord_RPC.details = tr("Editing Project: " + project_name)
+			Discord_RPC.small_image_text = project_name
 		Discord_RPC.refresh()
 
 		api.signals.signal_project_switched(project_changed)
@@ -48,7 +52,7 @@ func start_discord_rpc() -> void:
 		api.general.get_global().animation_timeline.animation_finished.connect(animation_finished)
 
 
-func  update_discord_rpc() -> void:
+func update_discord_rpc() -> void:
 	if Discord_RPC:
 		if is_animating:
 			Discord_RPC.state = "Playing Animation..."
@@ -69,7 +73,7 @@ func _exit_tree() -> void:
 	api.general.get_global().animation_timeline.animation_finished.disconnect(animation_finished)
 
 
-func project_changed():
+func project_changed() -> void:
 	if Discord_RPC:
 		var project_name = api.project.current_project.name
 		Discord_RPC.details = tr("Editing Project: " + project_name)
@@ -77,13 +81,13 @@ func project_changed():
 		Discord_RPC.refresh()
 
 
-func drawing_status():
+func drawing_status() -> void:
 	status = "Drawing..."
 
 
-func animation_started(farward: bool):
+func animation_started(_forward: bool) -> void:
 	is_animating = true
 
 
-func animation_finished():
+func animation_finished() -> void:
 	is_animating = false
