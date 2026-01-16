@@ -16,6 +16,7 @@ var libraries = [
 	"windows/discord_game_sdk_x86.dll",
 ]
 
+
 func is_integrated():
 	for path in libraries:
 		if not FileAccess.file_exists(to_path.path_join(path)):
